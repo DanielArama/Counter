@@ -1,0 +1,34 @@
+module Counter #(parameter n=4)(
+  input clk,           // Clock signal
+  input reset_n,       // Active-low reset signal
+  input pe,            // Parallel enable signal
+  input up_Down,       // Up/Down control signal
+  input enb,           // Enable signal
+  input [n-1:0] pi,    // Parallel input data
+  
+  output [n-1:0] Q     // Counter output
+);
+  reg [n-1:0] Q_next, Q_reg;
+  
+  always @(posedge clk, negedge reset_n) begin
+    if (~reset_n) begin
+      Q_reg <= 'b0;       // Reset the counter to 0
+    end else if (enb) begin
+      Q_reg <= Q_next;    // Update the counter with the next value
+    end else begin
+      Q_reg <= Q_reg;     // Hold the current counter value
+    end
+  end
+  
+  always @(Q_reg, up_Down, pi, pe) begin
+    Q_next = Q_reg;
+    casex({up_Down, pe})
+      2'b00 : Q_next = Q_reg - 1;   // Count down
+      2'bx1 : Q_next = pi;          // Load parallel input
+      2'b10 : Q_next = Q_reg + 1;   // Count up
+      default: Q_next = Q_reg;      // No change
+    endcase
+  end
+  
+  assign Q = Q_reg;     // Assign the counter output
+endmodule
