@@ -1,0 +1,50 @@
+module TB_counter(
+
+    );
+    localparam n=5;
+    reg clk=1'b0;
+    reg reset_n, up_Down, enb,pe;
+    reg  [n-1:0]  pi=-1;
+    wire [n-1:0] Q;
+    
+    Counter #(.n(n)) UUT (
+    .clk(clk),
+    .reset_n(reset_n),
+    .up_Down(up_Down),
+    .pe(pe),      
+    .pi(pi),
+    .enb(enb),
+    .Q(Q)
+    );
+    
+    always begin
+    #1; clk=~clk;
+    end
+    
+    initial begin 
+    pe=1'b0;
+    reset_n =1'b0;
+    enb=1'b1;
+    up_Down=1'b1;
+    #5;
+    
+    reset_n =1'b1;
+    enb=1'b0;
+    #2;
+    
+    enb=1'b1;
+    wait (Q==31);
+    up_Down=1'b0;
+    #20;
+    
+    enb=1'b1;
+    pe=1'b1;
+    #5;
+    
+    reset_n =1'b0;
+    #5;
+    
+    $stop;
+    
+    end
+endmodule
